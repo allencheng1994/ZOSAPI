@@ -31,8 +31,9 @@ class ZOSFigure():
             self.__field_case_legend.append(mtft_append_legend)
             self.__field_case_legend.append(mtfs_append_legend)
 
-    def export_figFCD(self, newFCD_ResultsCast):
+    def export_figFCD(self, newFCD_ResultsCast, distType = 'F-Tan(theta)', distXScale = 3):
         figFCD, axs = plt.subplots(1, 2)
+        distTitle = distType + ' Distortion'
         for gridN in range(newFCD_ResultsCast.NumberOfDataSeries):
             dataFCD = newFCD_ResultsCast.GetDataSeries(gridN)
             y = np.array(dataFCD.YData.Data)
@@ -54,7 +55,7 @@ class ZOSFigure():
             y = np.array(dataFCD.YData.Data)
             x = np.array(dataFCD.XData.Data)
             axs[1].plot(y[:,4], x[:],color=self.__colors[gridN],label=str(self.__Wavelengthslst[gridN]))
-        axs[1].set_xlim(-3 , 3)
+        axs[1].set_xlim(-distXScale , distXScale)
         axs[1].set_ylim(0 ,max(x))
         axs[1].xaxis.set_major_locator(MaxNLocator(5))
         axs[1].xaxis.set_major_formatter(FormatStrFormatter('%.1f'))
@@ -62,7 +63,7 @@ class ZOSFigure():
         axs[1].set_ylabel('+Y')
         axs[1].legend(loc = 'lower right', frameon=False, fontsize = 10)
         axs[1].grid(True)
-        axs[1].set_title('F-Tan(theta) Distortion', fontsize = 16, fontweight = 'bold')
+        axs[1].set_title(distTitle, fontsize = 16, fontweight = 'bold')
     
         plt.suptitle('Maximum Field is ' + '{:.3f}'.format(max(x)) + ' Degrees')
         FilePath = dirpath + '//FCD.png'
@@ -103,10 +104,15 @@ class ZOSFigure():
     def export_figMTFvsField(self, newMtfvsField_ResultsCast):
         figMTFvsField = plt.figure()
         ax = plt.subplot(111)
+        figLegend = []
         for seriesNum in range(0,newMtfvsField_ResultsCast.NumberOfDataSeries,1):
             data = newMtfvsField_ResultsCast.GetDataSeries(seriesNum)
-            labels = data.Description
-            print(labels)
+            legend = ''.join(list(filter(lambda ch: ch in '0123456789.', data.Description)))
+            legend, ignore = legend[:-1], legend[-1]
+            legendT = legend + 'cyc/mm (T)'
+            legendS = legend + 'cyc/mm (S)'
+            figLegend.append(legendT)
+            figLegend.append(legendS)
             x = np.array(data.XData.Data)
             y = np.array(data.YData.Data)
             ax.plot(x[:],y[:,0],linestyle='--',color=self.__colors[seriesNum])
@@ -117,11 +123,13 @@ class ZOSFigure():
         plt.grid(True)
         plt.xlim(0 , max(x))
         plt.ylim(0 ,1)
+        ax.legend(figLegend, loc='lower center', bbox_to_anchor=(0.5, 0), fontsize = 10,
+          ncol=4, fancybox=True, shadow=False)
         FilePath = dirpath + '//MTFvsField.png'
         figMTFvsField.savefig(FilePath)
         plt.close()
 
-    def export_figTFM(self, newTFM_ResultsCast):
+    def export_figTFM(self, newTFM_ResultsCast, tfmXScale = 0.05):
         figTFM = plt.figure()
         ax = plt.subplot(111)
         j = 0
@@ -140,7 +148,7 @@ class ZOSFigure():
         plt.xlabel('Focus Shift in Millimeters')
         plt.ylabel('Modulus of the OTF')
         plt.grid(True)
-        plt.xlim(-0.05 , 0.05)
+        plt.xlim(-tfmXScale , tfmXScale)
         plt.ylim(0 ,1)
 
         ax.legend(self.__field_case_legend, loc='lower center', bbox_to_anchor=(0.5, -0.25), fontsize = 10,

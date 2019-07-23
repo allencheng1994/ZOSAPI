@@ -9,13 +9,20 @@ dictSampleSize = {32:'constants.SampleSizes_S_32x32', 64:'constants.SampleSizes_
 dictScanType = {'+y':'constants.ScanTypes_Plus_Y', '-y':'constants.ScanTypes_Minus_Y', '+x':'constants.ScanTypes_Plus_X',\
     '-x':'constants.ScanTypes_Minus_X'}
 
+dictDistortions = {'F_TanTheta':'constants.Distortions_F_TanTheta', 'F_Theta':'constants.Distortions_F_Theta',\
+    'Cal_F_Theta':'constants.Distortions_Cal_F_Theta', 'Cal_F_TanTheta':'constants.Distortion_Cal_F_TanTheta'}
+
+dictReferType = {'ChiefRay':'constants.ChiefRay', 'Centroid':'constants.Centroid', 'Vertex':'constants.Vertex'}
+
 class ZOSAnalyses(object):
     def __init__(self, TheAnalyses):
         self.__TheAnalyses = TheAnalyses
 
-    def FieldCurvatureAndDistortion(self):
+    def FieldCurvatureAndDistortion(self, distType = 'F_TanTheta'):
         newFCD = self.__TheAnalyses.New_FieldCurvatureAndDistortion()
         newFCD_Settings = newFCD.GetSettings()
+        newFCD_SettingsCast = CastTo(newFCD_Settings,'IAS_FieldCurvatureAndDistortion')
+        newFCD_SettingsCast.Distortion = eval(dictDistortions[distType])
         newFCD.ApplyAndWaitForCompletion()
         newFCD_Results = newFCD.GetResults()
         newFCD_ResultsCast = CastTo(newFCD_Results, 'IAR_')
@@ -64,5 +71,15 @@ class ZOSAnalyses(object):
         newMtfvsField_Results = newMtfvsField.GetResults()
         newMtfvsField_ResultsCast = CastTo(newMtfvsField_Results, 'IAR_')
         return newMtfvsField_ResultsCast
+
+    def StandardSpot(self, referType):
+        spot = self.__TheAnalyses.New_Analysis(constants.AnalysisIDM_StandardSpot)
+        spot_setting = spot.GetSettings()
+        baseSetting = CastTo(spot_setting, 'IAS_Spot')
+        baseSetting.Field.UseAllFields()
+        baseSetting.ReferTo = eval(dictReferType[referType])
+        base = CastTo(spot, 'IA_')
+        base.ApplyAndWaitForCompletion()
+
 
 
