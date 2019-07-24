@@ -15,8 +15,8 @@ dictDistortions = {'F_TanTheta':'constants.Distortions_F_TanTheta', 'F_Theta':'c
 dictReferType = {'ChiefRay':'constants.ChiefRay', 'Centroid':'constants.Centroid', 'Vertex':'constants.Vertex'}
 
 class ZOSAnalyses(object):
-    def __init__(self, TheAnalyses):
-        self.__TheAnalyses = TheAnalyses
+    def __init__(self, TheSystem):
+        self.__TheAnalyses = TheSystem.Analyses
 
     def FieldCurvatureAndDistortion(self, distType = 'F_TanTheta'):
         newFCD = self.__TheAnalyses.New_FieldCurvatureAndDistortion()

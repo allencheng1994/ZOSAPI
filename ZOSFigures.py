@@ -10,14 +10,14 @@ pyfile = sys.argv[0]
 dirpath = os.path.dirname(pyfile)
 
 class ZOSFigure():
-    def __init__(self, TheSystemData):
-        self.__TheSystemData = TheSystemData
+    def __init__(self, TheSystem):
+        self.__TheSystemData = TheSystem.SystemData
         self.__colors = ('b','g','r','c', 'm', 'y', 'k')
         self.__field_case_legend = []
-        self.__numberOfWavelength = TheSystemData.Wavelengths.NumberOfWavelengths
+        self.__numberOfWavelength = self.__TheSystemData.Wavelengths.NumberOfWavelengths
         self.__Wavelengthslst = np.zeros(self.__numberOfWavelength)
         for i in range(self.__numberOfWavelength):
-            self.__Wavelengthslst[i] = TheSystemData.Wavelengths.GetWavelength(i + 1).Wavelength
+            self.__Wavelengthslst[i] = self.__TheSystemData.Wavelengths.GetWavelength(i + 1).Wavelength
 
         self.__Fields = []
         for i in range(self.__TheSystemData.Fields.NumberOfFields):
