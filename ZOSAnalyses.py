@@ -1,4 +1,3 @@
-from ZOSCOM import *
 from win32com.client import CastTo, constants
 
 dictSampleSize = {32:'constants.SampleSizes_S_32x32', 64:'constants.SampleSizes_S_64x64', 128:'constants.SampleSizes_S_64x64', \
@@ -80,6 +79,35 @@ class ZOSAnalyses(object):
         baseSetting.ReferTo = eval(dictReferType[referType])
         base = CastTo(spot, 'IA_')
         base.ApplyAndWaitForCompletion()
+        spot_results = base.GetResults()
+        return spot_results
 
+    def RelativeIllumination(self):
+        pass
 
+    def LateralColor(self, useAllWavelengths = True, showAiryDisk = True, useRealRays = True):
+        newLateralColor = self.__TheAnalyses.New_LateralColor()
+        newLateralColor_Settings = newLateralColor.GetSettings()
+        newLateralColor_SettingsCast = CastTo(newLateralColor_Settings, 'IAS_LateralColor')
+        newLateralColor_SettingsCast.AllWavelengths = useAllWavelengths
+        newLateralColor_SettingsCast.ShowAiryDisk = showAiryDisk
+        newLateralColor_SettingsCast.UseRealRays = useRealRays
+        newLateralColor.ApplyAndWaitForCompletion()
+        newLateralColor_Results = newLateralColor.GetResults()
+        newLateralColor_ResultsCast = CastTo(newLateralColor_Results, 'IAR_')
+        return newLateralColor_ResultsCast
+        
+    def FocalShiftDiagram(self, maximumShift = 0, pupilZone = 0):
+        newFocalShift = self.__TheAnalyses.New_FocalShiftDiagram()
+        newFocalShift_Settings = newFocalShift.GetSettings()
+        newFocalShift_SettingsCast = CastTo(newFocalShift_Settings, 'IAS_FocalShiftDiagram')
+        newFocalShift_SettingsCast.MaximumShift = maximumShift
+        newFocalShift_SettingsCast.PupilZone = pupilZone
+        newFocalShift.ApplyAndWaitForCompletion()
+        newFocalShift_Results = newFocalShift.GetResults()
+        newFocalShift_ResultsCast = CastTo(newFocalShift_Results, 'IAR_')
+        return newFocalShift_ResultsCast
+
+    def LayOut2D(self):
+        newLayOut = self.__TheAnalyses.New_Analysis(constants.AnalysisIDM_Draw2D)
 

@@ -6,24 +6,34 @@ class ZOSMCE(object):
         self.__operandCounter = opStartIndex
         self.__configCounter = confStartIndex
 
-    def addConfig(self, quantity = 1):
+    def addConfigs(self, quantity = 1):
         for i in range(quantity):
             self.__TheMCE.AddConfiguration(False)
             self.__configCounter += 1
 
-    def addOperandPRAM(self, Surface, ParaNum):
+    def addOperandPRAM(self, surface, paraNum):
         self.__operandCounter += 1
-        self.__TheMCE.InsertNewOperandAt(0)
+        setOperand = self.__TheMCE.InsertOperandAt(self.__operandCounter)
+        setOperand.ChangeType(constants.MultiConfigOperandType_PRAM)
+        setOperand.Param1 = surface
+        setOperand.Param2 = paraNum
         
+    def addOperandWAVE(self, wavelength):
+        self.__operandCounter += 1
+        setOperand = self.__TheMCE.InsertOperandAt(self.__operandCounter)
+        setOperand.ChangeType(constants.MultiConfigOperandType_WAVE)
+        setOperand.Param1 = wavelength
 
-    def rmAllConfig(self):
-        pass
+    def addOperandTHIC(self, surface):
+        self.__operandCounter += 1
+        setOperand = self.__TheMCE.InsertOperandAt(self.__operandCounter)
+        setOperand.ChangeType(constants.MultiConfigOperandType_THIC)
+        setOperand.Param1 = surface
 
-    def rmAllConfig(self, index):
-        pass
+    def addOperandTEMP(self):
+        self.__operandCounter += 1
+        setOperand = self.__TheMCE.InsertOperandAt(self.__operandCounter)
+        setOperand.ChangeType(constants.MultiConfigOperandType_TEMP)
 
-    def getConfigQuan(self):
-        return self.__configCounter
-
-    def getOperandQuan(self):
+    def getOperandCounter(self):
         return self.__operandCounter

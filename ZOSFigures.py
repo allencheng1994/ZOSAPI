@@ -1,4 +1,3 @@
-from ZOSCOM import *
 from matplotlib import cm
 from matplotlib.ticker import FormatStrFormatter, MaxNLocator
 from matplotlib.colors import ListedColormap, LinearSegmentedColormap
@@ -9,7 +8,7 @@ import glob, sys, os, math
 pyfile = sys.argv[0]
 dirpath = os.path.dirname(pyfile)
 
-class ZOSFigure():
+class ZOSFigure(object):
     def __init__(self, TheSystem):
         self.__TheSystemData = TheSystem.SystemData
         self.__colors = ('b','g','r','c', 'm', 'y', 'k')
@@ -19,9 +18,7 @@ class ZOSFigure():
         for i in range(self.__numberOfWavelength):
             self.__Wavelengthslst[i] = self.__TheSystemData.Wavelengths.GetWavelength(i + 1).Wavelength
 
-        self.__Fields = []
-        for i in range(self.__TheSystemData.Fields.NumberOfFields):
-            self.__Fields.append(self.__TheSystemData.Fields.GetField(i + 1).Y)
+        self.__Fields = [self.__TheSystemData.Fields.GetField(i + 1).Y for i in range(self.__TheSystemData.Fields.NumberOfFields)]
 
         for i in range(len(self.__Fields)):
             if not (i == 0 or i == 6 or i == 8 or i == 10):
@@ -160,18 +157,55 @@ class ZOSFigure():
         figTFM.savefig(FilePath)
         plt.close()
 
-
     def export_figREL(self, Fields, reliValue):
         figREL = plt.figure()
         ax = plt.subplot(111)
         ax.plot(Fields[:],reliValue[:],color='b')
-        plt.suptitle('Relative Illumination')
+        plt.suptitle('Relative Illumination', fontsize = 16, fontweight = 'bold')
         plt.title('Wavelength is ' + str(self.__Wavelengthslst[int(self.__numberOfWavelength / 2)]) + r'$\mu$m')
         plt.xlabel('Y Field in Millimeters')
-        plt.ylabel('Relative Illumination', fontsize = 16, fontweight = 'bold')
+        plt.ylabel('Relative Illumination')
         plt.xlim(0 , max(Fields))
         plt.ylim(0 ,1)
         plt.grid(True)
         relFilePath = dirpath + '//REL.png'
         figREL.savefig(relFilePath)
+        plt.close()
+
+    def export_figLAT(self, newLateralColor_ResultsCast, latXScale = 5):
+        figLAT = plt.figure()
+        ax = plt.subplot(111)
+        for waveNum in range(self.__numberOfWavelength):
+            data = newLateralColor_ResultsCast.GetDataSeries(0)
+            x = np.array(data.XData.Data)
+            y = np.array(data.YData.Data)
+            ax.plot(y[:,waveNum],x[:],color=self.__colors[waveNum])
+        plt.suptitle('Lateral Color', fontsize = 16, fontweight = 'bold')
+        plt.title('Maximum Field: ' + '{:.4f} '.format(self.__Fields[-1]) + r'$\mu$m')
+        plt.xlabel(r'$\mu$m')
+        plt.xlim(-latXScale, latXScale)
+        plt.ylim(0, max(x[:]))
+        plt.grid(True)
+        latFilePath = dirpath + '//LAT.png'
+        figLAT.savefig(latFilePath)
+        plt.close()
+
+    def export_figCFS(self, newFocalShift_ResultsCast):
+        figCFS = plt.figure()
+        ax = plt.subplot(111)
+        data = newFocalShift_ResultsCast.GetDataSeries(0)
+        x = np.array(data.XData.Data)
+        y = np.array(data.YData.Data) * 1000
+        ax.plot(y[:],x[:],color=self.__colors[0])
+
+        cfsXScale = math.ceil(max(abs(y)) / 10) * 10
+
+        plt.suptitle('Chromatic Focal Shift', fontsize = 16, fontweight = 'bold')
+        plt.xlabel('Focal Shift in ' + r'$\mu$m')
+        plt.ylabel('Wavelength in ' + r'$\mu$m')
+        plt.xlim(-cfsXScale, cfsXScale)
+        plt.ylim(min(x[:]), max(x[:]))
+        plt.grid(True)
+        cfsFilePath = dirpath + '//CFS.png'
+        figCFS.savefig(cfsFilePath)
         plt.close()
